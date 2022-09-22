@@ -9,8 +9,10 @@ def process_array(num, arr):
     print(arr)
     total = 0.00
     # TODO add necessary code here for sum; every number must have two decimal places shown
-    print("\nThe total is {}:\n".format(total))
-
+    for i in arr:
+        total = total + i
+        format_float = "{:.2f}".format(total)
+    print("\nThe total is {}:\n".format(format_float))
 
 print("Problem 2")
 process_array(1, a1)
