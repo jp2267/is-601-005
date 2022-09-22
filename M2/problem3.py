@@ -19,8 +19,11 @@ def process_array(num, arr):
     # TODO add new code here to print the desired result
     # setting conditions for 4 different list
     if num == 1:
+        #iterrating the list values
         for i in arr:
+            #checking if the number is positive or not
             if(i<0):
+                #multiplying the number with negative number to make it positive
                 a = i * negative_number
                 positive_number_a1.append(a)
             else:
@@ -48,6 +51,7 @@ def process_array(num, arr):
     
     else:
         for i in arr:
+            #casting the string to integer
             casted_number = int(i)
 
             if(casted_number<0):
