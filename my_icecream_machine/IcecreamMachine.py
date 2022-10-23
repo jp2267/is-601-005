@@ -1,8 +1,9 @@
 from enum import Enum
+import time
 # make a tests folder under the folder you're putting these files in
 # add an empty __init__.py to the tests folder
 from IcecreamExceptions import ExceededRemainingChoicesException, InvalidChoiceException, NeedsCleaningException, OutOfStockException
-from IcecreamExceptions import InvalidPaymentException
+from IcecreamExceptions import InvalidPaymentException, InvalidOperation
 
 class Usable:
     name = ""
@@ -44,12 +45,12 @@ class IceCreamMachine:
     MAX_SCOOPS = 3
     MAX_TOPPINGS = 3
 
-
-    containers = [Container(name="Waffle Cone", cost=1.5), Container(name="Sugar Cone", cost=1), Container("Cup", cost=1)]
-    flavors = [Flavor(name="Vanilla", quantity=100, cost=1), Flavor(name="Chocolate", quantity=100, cost=1), Flavor(name="Strawberry", quantity=100, cost=1)]
-    toppings = [Toppings(name="Sprinkles", quantity=200, cost=.25), Toppings(name="Chocolate Chips", quantity=200, cost=.25), Toppings(name="M&Ms", quantity=200, cost=.25), \
-    Toppings(name="Gummy Bears", quantity=200, cost=.25), Toppings(name="Peanuts", quantity=200, cost=.25)] 
-
+    def __init__(self):
+        self.containers = [Container(name="Waffle Cone", cost=1.5), Container(name="Sugar Cone", cost=1), Container("Cup", cost=1)]
+        self.flavors = [Flavor(name="Vanilla", quantity=100, cost=1), Flavor(name="Chocolate", quantity=100, cost=1), Flavor(name="Strawberry", quantity=100, cost=1)]
+        self.toppings = [Toppings(name="Sprinkles", quantity=200, cost=.25), Toppings(name="Chocolate Chips", quantity=200, cost=.25), Toppings(name="M&Ms", quantity=200, cost=.25), \
+            Toppings(name="Gummy Bears", quantity=200, cost=.25), Toppings(name="Peanuts", quantity=200, cost=.25)] 
+        self.inprogress_icecream = []
 
     # variables
     remaining_uses = USES_UNTIL_CLEANING
@@ -58,7 +59,6 @@ class IceCreamMachine:
     total_sales = 0
     total_icecreams = 0
 
-    inprogress_icecream = []
     currently_selecting = STAGE.Container
 
     # rules
@@ -116,16 +116,22 @@ class IceCreamMachine:
         self.remaining_uses = self.USES_UNTIL_CLEANING
         
     def handle_container(self, container):
+        if self.currently_selecting != STAGE.Container:
+            raise InvalidOperation
         self.pick_container(container)
         self.currently_selecting = STAGE.Flavor
 
     def handle_flavor(self, flavor):
+        if self.currently_selecting != STAGE.Flavor:
+            raise InvalidOperation
         if flavor == "next":
             self.currently_selecting = STAGE.Toppings
         else:
             self.pick_flavor(flavor)
 
     def handle_toppings(self, toppings):
+        if self.currently_selecting != STAGE.Toppings:
+            raise InvalidOperation
         if toppings == "done":
             self.currently_selecting = STAGE.Pay
         else:
@@ -136,31 +142,104 @@ class IceCreamMachine:
             print("Thank you! Enjoy your icecream!")
             self.total_icecreams += 1
             self.total_sales += expected # only if successful
+            print("total sales: ",self.total_sales)
+            print("Remaining Uses: ",self.remaining_uses)
             self.reset()
         else:
             raise InvalidPaymentException
-            
+    
+    # Ucid: jp2267 - 22-oct-2022
+    # Calculate method which calculates the total cost of the icecream       
     def calculate_cost(self):
         # TODO add the calculation expression/logic for the inprogress_icecream
-        return 10000
+        return sum(self.inprogress_icecream[i].cost for i in range(len(self.inprogress_icecream)))
 
     def run(self):
         if self.currently_selecting == STAGE.Container:
-            container = input(f"Would you like a {', '.join(list(map(lambda c:c.name.lower(), filter(lambda c: c.in_stock(), self.containers))))}?\n")
-            self.handle_container(container)
+            try:
+                container = input(f"Would you like a {', '.join(list(map(lambda c:c.name.lower(), filter(lambda c: c.in_stock(), self.containers))))}?\n")
+                self.handle_container(container)
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # Invalid choice exception is handled
+            except InvalidChoiceException:
+                print(f"Invalid choice please enter a valid choice \n such as a {', '.join(list(map(lambda c:c.name.lower(), filter(lambda c: c.in_stock(), self.containers))))}?\n")
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # out of stock exception is handled
+            except OutOfStockException:
+                print("Sorry the machine is out of stock for the container which you need please enter a container from the below available containers")
+
         elif self.currently_selecting == STAGE.Flavor:
-            flavor = input(f"Would you like {', '.join(list(map(lambda f:f.name.lower(), filter(lambda f: f.in_stock(), self.flavors))))}? Or type next.\n")
-            self.handle_flavor(flavor)
+            try:
+                flavor = input(f"Would you like {', '.join(list(map(lambda f:f.name.lower(), filter(lambda f: f.in_stock(), self.flavors))))}? Or type next.\n")
+                self.handle_flavor(flavor)
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # Invalid choice exception is handled
+            except InvalidChoiceException:
+                print(f"Invalid choice please enter a valid choice \n such as a {', '.join(list(map(lambda f:f.name.lower(), filter(lambda f: f.in_stock(), self.flavors))))}? Or type next.\n")
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # Exceeded Remaining Choices Exception is handled
+            except ExceededRemainingChoicesException:
+                print("Sorry you have your max scoops (which is 3) \n please type next to add the toppings in your icecream")
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # Out of Stock Exception is handled
+            except OutOfStockException:
+                print("Sorry the machine is out of stock for the flavor which you need please enter a flavor from the below available flavors")
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # Needs Cleaning Exception is handled
+            except NeedsCleaningException:
+                self.remaining_uses = self.USES_UNTIL_CLEANING
+                print("Sorry the machine is under cleaning stage please wait for 5 seconds")
+                time.sleep(5)
+                print("The machine is now ready to use")
+
         elif self.currently_selecting == STAGE.Toppings:
-            toppings = input(f"Would you like {', '.join(list(map(lambda t:t.name.lower(), filter(lambda t: t.in_stock(), self.toppings))))}? Or type done.\n")
-            self.handle_toppings(toppings)
+            try:
+                toppings = input(f"Would you like {', '.join(list(map(lambda t:t.name.lower(), filter(lambda t: t.in_stock(), self.toppings))))}? Or type done.\n")
+                self.handle_toppings(toppings)
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # Invalid Choice Exception is handled
+            except InvalidChoiceException:
+                print(f"Invalid choice please enter a valid choice \n such as a {', '.join(list(map(lambda t:t.name.lower(), filter(lambda t: t.in_stock(), self.toppings))))}? Or type done.\n")
+            
+            # Ucid: jp2267 - 22-oct-2022
+            # Exceeded Remaining Choices Exception is handled
+            except ExceededRemainingChoicesException:
+                print("Sorry you have your max toppings (which is 3) \n please type done to get your")
+
+            # Ucid: jp2267 - 22-oct-2022
+            # Out of Stock Exception is handled
+            except OutOfStockException:
+                print("Sorry the machine is out of stock for the flavor which you need please enter a flavor from the below available flavors")
+
+            # Ucid: jp2267 - 22-oct-2022
+            # Needs Cleaning Exception is handled
+            except NeedsCleaningException:
+                self.remaining_uses = self.USES_UNTIL_CLEANING
+                print("Sorry the machine is under cleaning stage please wait for 5 seconds")
+                time.sleep(5)
+                print("The machine is now ready to use")
+
         elif self.currently_selecting == STAGE.Pay:
             expected = self.calculate_cost()
-            total = input(f"Your total is {expected}, please enter the exact value.\n")
-            self.handle_pay(expected, total)
-            choice = input("What would you like to do? (icecream or quit)\n")
-            if choice == "quit":
-                exit()
+            try:
+                total = input(f"Your total is {expected}, please enter the exact value.\n")
+                self.handle_pay(expected, total)
+                choice = input("What would you like to do? (icecream or quit)\n")
+                if choice == "quit":
+                    exit()
+
+            # Ucid: jp2267 - 22-oct-2022
+            # Invalid Payment Exception Handled
+            except InvalidPaymentException:
+                print("Transaction failed")
+
         self.run()
 
     def start(self):

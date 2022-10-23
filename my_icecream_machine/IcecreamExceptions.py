@@ -17,3 +17,7 @@ class ExceededRemainingChoicesException(Exception):
 class InvalidPaymentException(Exception):
     """Raised when an invalid payment amount is given"""
     pass
+
+class InvalidOperation(Exception):
+    """Raised when the user is trying to break the flow"""
+    pass
