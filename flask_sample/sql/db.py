@@ -65,6 +65,10 @@ class DB:
         return DB.__runQuery(CRUD.UPDATE, False, queryString, args)
 
     @staticmethod
+    def delete(queryString, *args):
+        return DB.__runQuery(CRUD.DELETE, False, queryString, args)
+
+    @staticmethod
     def query(queryString):
         if "CREATE TABLE" in queryString.upper():
             return DB.__runQuery(CRUD.CREATE, False, queryString)
