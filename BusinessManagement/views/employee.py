@@ -134,6 +134,7 @@ def add():
 def edit():
     # TODO edit-1 request args id is required (flash proper error message)
 
+    #jp2267 3 dec 
     id = request.args.get("id")
     print(id)
     resp = None
