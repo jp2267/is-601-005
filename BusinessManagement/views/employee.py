@@ -5,6 +5,7 @@ employee = Blueprint('employee', __name__, url_prefix='/employee')
 
 @employee.route("/search", methods=["GET"])
 def search():
+    # jp2267 22 Nov
     first_name = request.args.get("first_name")
     last_name = request.args.get("last_name")
     email = request.args.get("email")
@@ -36,6 +37,7 @@ def search():
     # TODO search-8 append limit (default 10) or limit greater than 1 and less than or equal to 100
     # TODO search-9 provide a proper error message if limit isn't a number or if it's out of bounds
     
+    #jp2267 22 Nov
     if first_name:
         query += " AND IS601_MP2_Employees.first_name like %s"
         args.append(f"%{first_name}%")
@@ -74,7 +76,8 @@ def search():
             rows = result.rows
     except Exception as e:
         # TODO search-10 make message user friendly
-        flash(e, "error")
+        print(e)
+        flash("There was something wrong in listing the data","error")
     # hint: use allowed_columns in template to generate sort dropdown
     allowed_list = [(v,v) for v in allowed_columns]
     return render_template("list_employees.html", rows=rows, allowed_columns=allowed_list)
