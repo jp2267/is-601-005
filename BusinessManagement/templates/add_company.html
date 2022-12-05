@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+{% block title %}Add Company{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="h1">Add Company</div>
+    <div>
+        <form method="POST">
+            {#
+            generate fields with proper types for
+            name
+            address
+            city
+            website
+            #}
+            <label class="form-label" for="fn">name</label>
+            <input type="text" class="form-control" id="n" name="name" />
+            
+            <label class="form-label" for="ln">address</label>
+            <input type="text" class="form-control" id="ad" name="address" />            
+
+            <label class="form-label" for="fn">city</label>
+            <input type="text" class="form-control" id="n" name="city" />
+            
+            <label class="form-label" for="fn">zip</label>
+            <input type="text" class="form-control" id="n" name="zip" />
+            
+            <label class="form-label" for="ln">website</label>
+            <input type="text" class="form-control" id="ad" name="website" /> 
+
+            {# use this for country/state selection #}
+            {% include "country_state_selector.html" %}
+            <input type="submit" class="btn btn-primary" value="Save Company" />
+        </form>
+    </div>
+</div>
+{% endblock %}
