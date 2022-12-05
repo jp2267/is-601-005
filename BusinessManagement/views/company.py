@@ -1,14 +1,25 @@
-from flask import Blueprint, render_template, request, flash
+from flask import Blueprint, redirect, render_template, request, flash, url_for
 from sql.db import DB
 company = Blueprint('company', __name__, url_prefix='/company')
 
 @company.route("/search", methods=["GET"])
 def search():
+    
+    name = request.args.get("name")
+    country = request.args.get("country")
+    state = request.args.get("state")
+    col = request.args.get("column")
+    order = request.args.get("order")
+    limit = request.args.get("limit", 10)    
+    
+    print("--------------------------")
+    print(name)
+
     rows = []
     # DO NOT DELETE PROVIDED COMMENTS
     # TODO search-1 retrieve id, name, address, city, country, state, zip, website, employee count for the company
     # don't do SELECT *
-    query = "... WHERE 1=1"
+    query = "SELECT id, name, address, city, country, state, zip, website FROM IS601_MP2_Companies WHERE 1=1"
     args = [] # <--- append values to replace %s placeholders
     allowed_columns = ["name", "city", "country", "state"]
     # TODO search-2 get name, country, state, column, order, limit request args
@@ -19,6 +30,30 @@ def search():
     # TODO search-7 append limit (default 10) or limit greater than 1 and less than or equal to 100
     # TODO search-8 provide a proper error message if limit isn't a number or if it's out of bounds
     
+    if name:
+        query += " AND IS601_MP2_Companies.name like %s"
+        args.append(f"%{name}%")
+
+    if country:
+        query += " AND IS601_MP2_Companies.country like %s"
+        args.append(f"%{country}%")
+
+    if state:
+        query += " AND IS601_MP2_Companies.state like %s"
+        args.append(f"%{state}%")
+
+    if col and order:
+        if col in allowed_columns \
+            and order in ["asc", "desc"]:
+            query += f" ORDER BY {col} {order}"
+
+    if limit and int(limit) > 0 and int(limit) <= 100 :
+        query += " LIMIT %s"
+        args.append(int(limit))
+    else:
+        flash('limit should be a numeric value or try entering less than ', "warning")
+        return redirect(request.url)  
+
     print("query",query)
     print("args", args)
     try:
@@ -29,7 +64,8 @@ def search():
         # TODO search-9 make message user friendly
         flash(str(e), "danger")
     # hint: use allowed_columns in template to generate sort dropdown
-    return render_template("list_companies.html", rows=rows, allowed_columns=allowed_columns)
+    allowed_list = [(v,v) for v in allowed_columns]
+    return render_template("list_companies.html", rows=rows, allowed_columns=allowed_list)
 
 @company.route("/add", methods=["GET","POST"])
 def add():
@@ -44,12 +80,21 @@ def add():
         
         has_error = False # use this to control whether or not an insert occurs
         
+        n = request.form.get("name", None)
+        ad = request.form.get("address", None)
+        c = request.form.get("city", None)
+        s = request.form.get("state", None)
+        country = request.form.get("country", None)
+        z = request.form.get("zip", None)
+        w = request.form.get("website", None)
+
 
         if not has_error:
             try:
                 result = DB.insertOne("""
-                INSERT QUERY
-                """, ) # <-- TODO add-8 add query and add arguments
+                INSERT
+                INTO IS601_MP2_Companies (name,address,city,country,state,zip,website)
+                VALUES(%s, %s, %s, %s, %s, %s, %s)""", n,ad,c,country,s,z,w) # <-- TODO add-8 add query and add arguments
                 if result.status:
                     flash("Added Company", "success")
             except Exception as e:
@@ -61,7 +106,18 @@ def add():
 @company.route("/edit", methods=["GET", "POST"])
 def edit():
     # TODO edit-1 request args id is required (flash proper error message)
-    if True: # TODO update this for TODO edit-1
+    
+    id = request.args.get("id")
+    print(id)
+    resp = None
+    row = None
+    
+    print("request", request.args)
+
+
+    if id is None: # TODO update this for TODO edit-1
+        return redirect("company.search")
+    else:
         if request.method == "POST":
             # TODO edit-2 retrieve form data for name, address, city, state, country, zip, website
             # TODO edit-3 name is required (flash proper error message)
@@ -73,28 +129,48 @@ def edit():
             # 
             # note: call zip variable zipcode as zip is a built in function it could lead to issues
             #data = [name, address, city, state, country, zipcode, website]
-            data.append(id)
+            #data.append(id)
+            n = request.form.get("name")
+            ad = request.form.get("address")
+            ci = request.form.get("city")
+            s = request.form.get("state")
+
+            co = request.form.get("country")
+            z = request.form.get("zip")
+            w = request.form.get("website")
+
+            print(request.args.get("country" + "no country found")) 
             try:
                 # TODO edit-9 fill in proper update query
                 result = DB.update("""
-                UPDATE QUERY
-                """, *data)
+                UPDATE IS601_MP2_Companies SET 
+                name = %s,
+                address = %s,
+                city = %s,
+                state = %s,
+                country = %s,
+                zip = %s,
+                website = %s
+                WHERE id = %s
+                """, n,ad,ci,s,co,z,w,id)
+
                 if result.status:
+                    resp = "Updated"
                     flash("Updated record", "success")
             except Exception as e:
                 # TODO edit-10 make this user-friendly
                 flash(str(e), "danger")
         try:
             # TODO edit-11 fetch the updated data
-            result = DB.selectOne("SELECT ... FROM IS601_MP2_Companies ...", id)
+            result = DB.selectOne("SELECT id, name, address, city, country, state, zip, website FROM IS601_MP2_Companies WHERE id = %s", id)
             if result.status:
                 row = result.row
-                
+                print(row)
         except Exception as e:
             # TODO edit-12 make this user-friendly
             flash(str(e), "danger")
     # TODO edit-13 pass the company data to the render template
-    return render_template("edit_company.html", ...)
+    return render_template("edit_company.html", row=row, resp=resp)
 
 @company.route("/delete", methods=["GET"])
 def delete():
@@ -102,4 +178,10 @@ def delete():
     # TODO delete-2 redirect to company search
     # TODO delete-3 pass all argument except id to this route
     # TODO delete-4 ensure a flash message shows for successful delete
-    pass
+    id = request.args.get("id")
+    args = {**request.args}
+    if id:
+        result = DB.delete("DELETE FROM IS601_MP2_Companies WHERE ID = %s", id)
+        flash("Deleted Company Record", "success")
+        del args["id"]
+    return redirect(url_for("company.search", **args))

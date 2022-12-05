@@ -9,27 +9,19 @@ def app():
     """app.config.update({
         "TESTING": True,
     })"""
-    
+    DB.getDB().autocommit = True
     # other setup can go here
-    yield app
-    try:
-        DB.getDB().autocommit = True
-        DB.delete("DELETE FROM IS601_MP2_Companies WHERE name=%s", "_test_comp")
-        # reset AUTO_INCREMENT value to max id + 1 so test cases don't cause large id gaps
-
-        # this needs to run at the end of the other tests
-        # if this hangs (takes longer than 10 seconds) run the following commands manually via your mysql extension
-        # show processlist;
-        # kill #;
-        # the # will be the process id of the sleeping query
-        result = DB.query(""" set session wait_timeout = 1;
-        ALTER TABLE IS601_MP2_Companies AUTO_INCREMENT = 1;
-        """)
-        print("result", result.status)
-    except Exception as e:
-        print(e)
-    DB.close()
+    DB.delete("DELETE FROM IS601_MP2_Employees WHERE id = %s", -1)
+    DB.delete("DELETE FROM IS601_MP2_Companies WHERE id = %s", -1)
     
+    DB.insertOne("INSERT INTO IS601_MP2_Companies (id, name) VALUES (-1, '_test-company')")
+    DB.insertOne("INSERT INTO IS601_MP2_Employees (id, first_name, last_name, email, company_id) VALUES (-1,'_test', '_test', '_test@email.com', -1)")
+    yield app
+    DB.delete("DELETE FROM IS601_MP2_Employees WHERE id = %s", -1)
+    DB.delete("DELETE FROM IS601_MP2_Companies WHERE id = %s", -1)
+    DB.close()
+    # clean up / reset resources here
+
 
 @pytest.fixture()
 def client(app):
@@ -41,30 +33,25 @@ def runner(app):
     return app.test_cli_runner()
 
 #https://pypi.org/project/pytest-order/
-@pytest.mark.order("last")
-def test_add_compnay(client):
-    from ..sql.db import DB
-    resp = client.post("/company/add", data={
-        "name": "_test_comp",
-        "address": "123 fake st",
-        "city": "Nowhereville",
-        "zip":"00000",
-        "website": "https://google.com",
-        "country": "US",
-        "state":"NJ"
+@pytest.mark.order("second_to_last")
+def test_edit_company(client):
+    resp = client.post("/company/edit?id=-1", data={
+        "name": "_test-company",
+        "address" : "123 fun st.",
+        "country" : "US",
+        "state": "NJ",
+        "city": "Testville"
     }, follow_redirects=True )
     assert resp.status_code == 200
-    result = DB.selectOne("SELECT id from IS601_MP2_Companies where name = %s  LIMIT 1", '_test_comp')
-    if result and result.row:
-        id = int(result.row["id"])
-        print("id", id)
-        resp = client.get(f"/company/edit?id={id}", follow_redirects=True )
-        # print(resp.data)
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(resp.data, "html.parser")
-        form = soup.form
-        ele = form.select("[name='name']")[0]
-        print(ele)
-        assert ele.get("value") == '_test_comp'
-        ele = form.select("[name='zip']")[0]
-        assert ele.get("value") == '00000'
+    resp = client.get("/company/edit?id=-1", follow_redirects=True )
+    # print(resp.data)
+    from bs4 import BeautifulSoup
+    soup = BeautifulSoup(resp.data, "html.parser")
+    form = soup.form
+    ele = form.select("[name='city']")[0]
+    print(ele)
+    # TODO the dropdown option doesn't need to exist, it just needs to
+    # be set on the select element so this is fine
+    assert ele.get("value") == 'Testville'
+    ele = form.select("[name='name']")[0]
+    assert ele.get("value") == "_test-company"

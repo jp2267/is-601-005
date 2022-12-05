@@ -11,14 +11,21 @@
     limit
     ensure all fields prefill with request arg data if provided
     #}
-    <form method="GET">
+    <form method="GET" class="row row-cols-lg-auto g-3 align-items-center">    
+
+        <div class="col-12">
+            <label class="form-label" for="name">Company Name</label>
+            <input type="text" name="name" class="form-control" id="name" placeholder="Company Name"
+                value="{{request.args.get('name') or ''}}">
+        </div>
+
         {% with layout = "horizontal" %}
         {% include "country_state_selector.html" %}
         {% endwith %}
-        {% with cols = [] %}
+        {% with cols = allowed_columns %}
         {% include "sort_filter.html" %}
         {% endwith %}
-        
+
         <div class="col-12">
             <input type="submit" class="btn btn-primary" value="Filter" />
         </div>
@@ -33,9 +40,13 @@
             <tr class="text-capitalize">
                 {# generate th tags for each column to display #}
                 {# IMPORTANT use table column names as the headings, replace _ with space #}
+                {% for r in rows[0] %}
+                    <th>{{r | replace("_"," ")}}</th>
+                {% endfor %}
                 <th>Actions</th>
             </tr>
         </thead>
+        {% for r in rows %}
         <tbody>
             {# generate tr with td tags for each piece of data #}
             {# if the td is for website, display it as a link where the text is "website" and the url is the
@@ -46,7 +57,17 @@
             an edit button that passes the company id to company edit
             a delete button that passes the company id and the request args to the company delete route
             #}
+            {% for v in r.values() %}
+            <td>{{v}}</td>
+            {% endfor %}
+            <td><a href="{{url_for('company.edit', id=r.get('id'), country=r.get('country'), state=r.get('state'))}}" class="btn btn-secondary btn-sm">Edit</a>
+                {# **request.args spreads the key value pairs to be part of the url#}
+                {# the idea is to pass it to the next route #}
+                <a href="{{url_for('company.delete', id=r.get('id'), **request.args)}}"
+                    class="btn btn-danger btn-sm">x</a>
+            </td>
         </tbody>
+        {% endfor %}
         {% else %}
         <tbody>
             <tr>

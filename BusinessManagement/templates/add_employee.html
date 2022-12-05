@@ -11,8 +11,20 @@
             last_name
             email
             #}
+            {#ucid: jp2267    date: 11-17-2022#}
+            <label class="form-label" for="fn">First Name</label>
+            <input type="text" class="form-control" id="fn" name="first_name" />
+            
+            <label class="form-label" for="ln">Last Name</label>
+            <input type="text" class="form-control" id="ln" name="last_name" />
+
+            <label class="form-label" for="e">Email</label>
+            <input type="email" class="form-control" id="e" name="email" />
+
+            <!--<label class="form-label" for="c">company</label>-->
             {# use the below for company selection #}
             {% include "company_dropdown.html" %}
+            </br>
             <input type="submit" class="btn btn-primary" value="Save Employee" />
         </form>
     </div>
