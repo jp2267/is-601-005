@@ -196,14 +196,26 @@ def edit():
 
 @company.route("/delete", methods=["GET"])
 def delete():
+    if request.args.get('id', '' ) == '':
+        flash('id is required', "danger")
+
+    id = request.args.get('id', '' )
     # TODO delete-1 delete company by id (unallocate any employees)
+    try:
+        pass
+        employees_result = DB.update("""
+                UPDATE IS601_MP2_Employees SET company_id=null WHERE company_id=%s
+                """, id)
+
+        result = DB.delete("DELETE FROM IS601_MP2_Companies WHERE id=%s", id)
+        if result.status:
+            # TODO delete-4 ensure a flash message shows for successful delete
+            flash("Company record successfully deleted", "success")
+    except Exception as e:
+        # TODO edit-9 make this user-friendly
+        print(str(e))
+        flash("There was an error deleting company record", "danger")
+
     # TODO delete-2 redirect to company search
     # TODO delete-3 pass all argument except id to this route
-    # TODO delete-4 ensure a flash message shows for successful delete
-    id = request.args.get("id")
-    args = {**request.args}
-    if id:
-        result = DB.delete("DELETE FROM IS601_MP2_Companies WHERE ID = %s", id)
-        flash("Deleted Company Record", "success")
-        del args["id"]
-    return redirect(url_for("company.search", **args))
+    return redirect(url_for('company.search', name="", country="", state="",order="asc", column="", limit=10))
