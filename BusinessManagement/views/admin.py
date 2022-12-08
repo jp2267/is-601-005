@@ -22,7 +22,7 @@ def importCSV():
         # TODO importcsv-1 check that it's a .csv file, return a proper flash message if it's not
         mystr = file.filename
         if mystr.endswith('.csv'):
-            flash('data is uploded successfully')
+            flash('data is uploded successfully',"success")
         else:
             flash('Please upload a .csv file', "warning")
             return redirect(request.url)
@@ -61,7 +61,7 @@ def importCSV():
                 try:
                     result = DB.insertMany(company_query, companies)
                     # TODO importcsv-5 display flash message about number of companies inserted
-                    flash(f"Inserting or updating {len(companies)} companies")
+                    flash(f"Inserting or updating {len(companies)} companies","sucess")
                 except Exception as e:
                     traceback.print_exc()
                     flash("There was an error loading in the csv data", "danger")
@@ -74,7 +74,7 @@ def importCSV():
                 try:
                     result = DB.insertMany(employee_query, employees)
                     # TODO importcsv-7 display flash message about number of employees loaded
-                    flash(f"Inserting or updating {len(employees)} employees")
+                    flash(f"Inserting or updating {len(employees)} employees","sucess")
                 except Exception as e:
                     traceback.print_exc()
                     flash("There was an error loading in the csv data", "danger")

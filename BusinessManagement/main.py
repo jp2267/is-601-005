@@ -16,6 +16,8 @@ cache = Cache(config={'CACHE_TYPE': 'SimpleCache'})
 def create_app(config_filename=''):
     app = Flask(__name__)
     app.secret_key = os.environ.get("SECRET_KEY", "missing_secret")
+    if not app.secret_key:
+        app.secret_key = "fall back"
     # commenting this out for now, paths will be normal with /bm
     # this causes some flash messages not to function properly so will investigate
     # app.config["APPLICATION_ROOT"] = "/bm"

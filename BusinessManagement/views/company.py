@@ -4,54 +4,53 @@ company = Blueprint('company', __name__, url_prefix='/company')
 
 @company.route("/search", methods=["GET"])
 def search():
-    
-    name = request.args.get("name")
-    country = request.args.get("country")
-    state = request.args.get("state")
-    col = request.args.get("column")
-    order = request.args.get("order")
-    limit = request.args.get("limit", 10)    
-    
-    print("--------------------------")
-    print(name)
 
     rows = []
     # DO NOT DELETE PROVIDED COMMENTS
     # TODO search-1 retrieve id, name, address, city, country, state, zip, website, employee count for the company
     # don't do SELECT *
     query = "SELECT id, name, address, city, country, state, zip, website FROM IS601_MP2_Companies WHERE 1=1"
+        
     args = [] # <--- append values to replace %s placeholders
     allowed_columns = ["name", "city", "country", "state"]
-    # TODO search-2 get name, country, state, column, order, limit request args
-    # TODO search-3 append a LIKE filter for name if provided
-    # TODO search-4 append an equality filter for country if provided
-    # TODO search-5 append an equality filter for state if provided
-    # TODO search-6 append sorting if column and order are provided and within the allows columsn and allowed order asc,desc
-    # TODO search-7 append limit (default 10) or limit greater than 1 and less than or equal to 100
-    # TODO search-8 provide a proper error message if limit isn't a number or if it's out of bounds
     
+    # TODO search-2 get name, country, state, column, order, limit request args
+    name = request.args.get("name")
+    country = request.args.get("country")
+    state = request.args.get("state")
+    col = request.args.get("column")
+    order = request.args.get("order")
+    limit = request.args.get("limit", 10) 
+
+    # TODO search-8 provide a proper error message if limit isn't a number or if it's out of bounds
+
+    # TODO search-3 append a LIKE filter for name if provided
     if name:
         query += " AND IS601_MP2_Companies.name like %s"
         args.append(f"%{name}%")
 
+    # TODO search-4 append an equality filter for country if provided
     if country:
         query += " AND IS601_MP2_Companies.country like %s"
         args.append(f"%{country}%")
 
+    # TODO search-5 append an equality filter for state if provided
     if state:
         query += " AND IS601_MP2_Companies.state like %s"
         args.append(f"%{state}%")
-
+    
+    # TODO search-6 append sorting if column and order are provided and within the allows columsn and allowed order asc,desc
     if col and order:
         if col in allowed_columns \
             and order in ["asc", "desc"]:
             query += f" ORDER BY {col} {order}"
-
+    
+    # TODO search-7 append limit (default 10) or limit greater than 1 and less than or equal to 100
     if limit and int(limit) > 0 and int(limit) <= 100 :
         query += " LIMIT %s"
         args.append(int(limit))
     else:
-        flash('limit should be a numeric value or try entering less than ', "warning")
+        flash('limit should be a numeric value or try entering 1 or 100 ', "warning")
         return redirect(request.url)  
 
     print("query",query)
@@ -62,7 +61,7 @@ def search():
             rows = result.rows
     except Exception as e:
         # TODO search-9 make message user friendly
-        flash(str(e), "danger")
+        flash('There was an error getting company records', "danger")
     # hint: use allowed_columns in template to generate sort dropdown
     allowed_list = [(v,v) for v in allowed_columns]
     return render_template("list_companies.html", rows=rows, allowed_columns=allowed_list)
@@ -70,16 +69,11 @@ def search():
 @company.route("/add", methods=["GET","POST"])
 def add():
     if request.method == "POST":
-        # TODO add-1 retrieve form data for name, address, city, state, country, zip, website
-        # TODO add-2 name is required (flash proper error message)
-        # TODO add-3 address is required (flash proper error message)
-        # TODO add-4 city is required (flash proper error message)
-        # TODO add-5 state is required (flash proper error message)
-        # TODO add-6 country is required (flash proper error message)
-        # TODO add-7 website is not required
-        
+    
         has_error = False # use this to control whether or not an insert occurs
-        
+
+        #jp2267 3 Dec
+        # TODO add-1 retrieve form data for name, address, city, state, country, zip, website
         n = request.form.get("name", None)
         ad = request.form.get("address", None)
         c = request.form.get("city", None)
@@ -88,7 +82,36 @@ def add():
         z = request.form.get("zip", None)
         w = request.form.get("website", None)
 
+        # TODO add-2 name is required (flash proper error message)
+        if n == "":
+            flash('Company name is required', "danger")
+            has_error = True
 
+        # TODO add-3 address is required (flash proper error message)
+        if ad == "":
+            flash('Address is required', "danger")
+            has_error = True
+
+        # TODO add-4 city is required (flash proper error message)
+        if c == "":
+            flash('City is required', "danger")
+            has_error = True
+
+        # TODO add-5 state is required (flash proper error message)
+        if s == "":
+            flash('State is required', "danger")
+            has_error = True
+
+        # TODO add-6 country is required (flash proper error message)
+        if country == "":
+            flash('Country is required', "danger")
+            has_error = True
+
+        # TODO add-7 website is not required
+        if w == "":
+            pass
+
+        #jp2267 3 Dec
         if not has_error:
             try:
                 result = DB.insertOne("""
@@ -99,7 +122,7 @@ def add():
                     flash("Added Company", "success")
             except Exception as e:
                 # TODO add-9 make message user friendly
-                flash(str(e), "danger")
+                flash('There was something wrong while adding the company data', "danger")
         
     return render_template("add_company.html")
 
@@ -108,7 +131,6 @@ def edit():
     # TODO edit-1 request args id is required (flash proper error message)
     
     id = request.args.get("id")
-    print(id)
     resp = None
     row = None
     
@@ -174,14 +196,26 @@ def edit():
 
 @company.route("/delete", methods=["GET"])
 def delete():
+    if request.args.get('id', '' ) == '':
+        flash('id is required', "danger")
+
+    id = request.args.get('id', '' )
     # TODO delete-1 delete company by id (unallocate any employees)
+    try:
+        pass
+        employees_result = DB.update("""
+                UPDATE IS601_MP2_Employees SET company_id=null WHERE company_id=%s
+                """, id)
+
+        result = DB.delete("DELETE FROM IS601_MP2_Companies WHERE id=%s", id)
+        if result.status:
+            # TODO delete-4 ensure a flash message shows for successful delete
+            flash("Company record successfully deleted", "success")
+    except Exception as e:
+        # TODO edit-9 make this user-friendly
+        print(str(e))
+        flash("There was an error deleting company record", "danger")
+
     # TODO delete-2 redirect to company search
     # TODO delete-3 pass all argument except id to this route
-    # TODO delete-4 ensure a flash message shows for successful delete
-    id = request.args.get("id")
-    args = {**request.args}
-    if id:
-        result = DB.delete("DELETE FROM IS601_MP2_Companies WHERE ID = %s", id)
-        flash("Deleted Company Record", "success")
-        del args["id"]
-    return redirect(url_for("company.search", **args))
+    return redirect(url_for('company.search', name="", country="", state="",order="asc", column="", limit=10))
