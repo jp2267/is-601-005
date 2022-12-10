@@ -19,6 +19,23 @@ def register():
         username = form.username.data
         email = form.email.data
         password = form.password.data
+        
+        # validating that user enter unique username
+        try:
+            result = DB.selectOne("SELECT id, username, email, password FROM IS601_Users where username=%s", username)
+            if result.status and result.row:
+                flash("username is taken","danger")
+        except Exception as e:
+            print("username is unique")
+
+        # validating that user enter unique username
+        try:
+            result = DB.selectOne("SELECT id, username, email, password FROM IS601_Users where email=%s", email)
+            if result.status and result.row:
+                flash("email already registered Please enter a different email","danger")
+        except Exception as e:
+            print("email is unique")
+
         try:
             hash = bcrypt.generate_password_hash(password)
             # save the hash, not the plaintext password
@@ -26,7 +43,8 @@ def register():
             if result.status:
                 flash("Successfully registered","success")
         except Exception as e:
-            flash(str(e), "danger")
+            #flash(str(e), "danger")
+            flash("Unable to register please enter unique data","danger")
     return render_template("register.html", form=form)
 
 @auth.route("/", methods=["GET", "POST"])
