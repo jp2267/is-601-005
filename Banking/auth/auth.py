@@ -85,7 +85,8 @@ def login():
                     flash("Invalid user", "warning")
 
             except Exception as e:
-                flash(str(e), "danger")
+                print(str(e))
+                flash("Invalid User","danger")
     return render_template("login.html", form=form)
 
 @auth.route("/landing-page", methods=["GET"])
@@ -137,7 +138,8 @@ def profile():
                     else:
                         flash("Invalid password","danger")
             except Exception as se:
-                flash(se, "danger")
+                print(se)
+                flash("something went wrong please try again","danger")
         
         if is_valid:
             try: # update email, username (this will trigger if nothing changed but it's fine)
@@ -161,5 +163,6 @@ def profile():
             current_user.username = user.username
             session["user"] = current_user.toJson()
     except Exception as e:
-        flash(e, "danger")
+        print(e)
+        flash("something went wrong please try again","danger")
     return render_template("profile.html", form=form)
