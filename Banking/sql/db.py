@@ -15,8 +15,12 @@ class DBResponse:
         self.status = status
         if row is not None:
             self.row = row
+        else:
+            self.row = None # return none
         if rows is not None:
             self.rows = rows
+        else:
+            self.rows = [] # return empty list
     def __str__(self):
         return json.dumps(self.__dict__)
 
@@ -31,6 +35,7 @@ class DB:
             status = False
             if not isMany or op == CRUD.READ:
                 if args is not None and len(args) > 0:
+                    # convert dict for named placeholder mapping
                     if type(args[0]) is dict:
                         args = {k: v for d in args for k, v in d.items()}
                     status = cursor.execute(queryString, args)
@@ -53,8 +58,6 @@ class DB:
                     status = True if status is None else False
                     response = DBResponse(status, None, result)
             else:
-                if op != CRUD.ALTER:
-                    db.commit()
                 status = True if status is None else False
                 response = DBResponse(status)
             try:
@@ -64,6 +67,7 @@ class DB:
         
         except Error as e:
             if e.errno == -1:
+                print("closing due to error")
                 DB.close()
             # converting to a plain exception so other modules don't need to import mysql.connector.Error
             # this will let you more easily swap out DB connectors without needing to refactor your code, just this class
@@ -84,6 +88,8 @@ class DB:
             return DB.__runQuery(CRUD.CREATE, False, queryString)
         elif queryString.upper().startswith("ALTER"):
             return DB.__runQuery(CRUD.ALTER, False, queryString)
+        elif queryString.upper().startswith("INSERT"):
+            return DB.insertOne(queryString, )
         else:
             return DB.__runQuery(CRUD.ALTER, False, queryString)
             #raise Exception("Please use one of the abstracted methods for this query")
@@ -116,7 +122,7 @@ class DB:
 
     @staticmethod
     def getDB():
-        if DB.db is None or DB.db.is_connected == False:
+        if DB.db is None or DB.db.is_connected() == False:
             import mysql.connector
             import os
             import re
@@ -131,6 +137,7 @@ class DB:
                         user,password,host,port,database = data
                         DB.db = mysql.connector.connect(host=host, user=user, password=password, database=database, port=port,
                         connection_timeout=10)
+                        DB.db.autocommit = True
                     except Error as e:
                         print("Error while connecting to MySQL", e)
                 else:
