@@ -1,0 +1,68 @@
+{% extends "layout.html" %}
+{% block title %}Edit Company{% endblock %}
+{% block head %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <div class="h1">Edit Company</div>
+    <div>
+        <form method="POST">
+            {#
+            generate fields with proper types for
+            name
+            address
+            city
+            website
+            and prefill the fields with loaded company data
+            #}
+            
+            <div class="form-group mb-3">
+                <label class="form-label" for="n">Key</label>
+                <input class="form-control" id="n" name="key" readonly value="{{row.id}}" />
+            </div>            
+            
+            <div class="form-group mb-3">
+                <label class="form-label" for="n">Company Name</label>
+                <input class="form-control" id="n" name="name" value="{{row.name}}" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label" for="ad">Address</label>
+                <input class="form-control" id="ad" name="address" value="{{row.address}}" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label" for="ci">City</label>
+                <input class="form-control" id="ci" name="city" value="{{row.city}}" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label" for="z">Zip</label>
+                <input class="form-control" id="z" name="zip" value="{{row.zip}}" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label" for="w">Website</label>
+                <input class="form-control" id="w" name="website" value="{{row.website}}" />
+            </div>
+
+            <div class="form-group mb-3">
+                <label class="form-label" for="co">country</label>
+                <input class="form-control" id="co" name="country" value="{{row.country}}" />
+            </div>
+
+            {# use this for country/state selection #}
+            {% set country = row.country %}
+            {% set state = row.state %}
+            {% include "country_state_selector.html" %}
+            <input type="submit" class="btn btn-primary" value="Save Company" />
+        </form>
+        {% if resp %}
+        <div id="output">
+            {{resp}}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

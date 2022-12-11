@@ -1,0 +1,31 @@
+<table><tr><td> <em>Assignment: </em> Sample Flask App and Readings</td></tr>
+<tr><td> <em>Student: </em> Joy Prakashchandra Patel (jp2267)</td></tr>
+<tr><td> <em>Generated: </em> 30/10/2022 16:55:19</td></tr>
+<tr><td> <em>Grading Link: </em> <a rel="noreferrer noopener" href="https://learn.ethereallab.app/homework/IS601-005-F22/sample-flask-app-and-readings/grade/jp2267" target="_blank">Grading</a></td></tr></table>
+<table><tr><td> <em>Instructions: </em> <ol><li>&nbsp;Follow the slides from class.&nbsp;</li><li>&nbsp;Get the sample app deployed to Heroku dev</li><li>&nbsp;Once finished with the slides create a pull request from the lesson branch to dev (don't close it yet)&nbsp;</li><li>&nbsp;Create an m6_submission.md file in the same directory as the flask sample app&nbsp;</li><li>&nbsp;Fill in the deliverables below&nbsp;</li><li>&nbsp;Generate the markdown and paste the content into the new md file&nbsp;</li><li>&nbsp;git add/commit/push&nbsp;</li><li>&nbsp;Complete the pull request&nbsp;</li><li>&nbsp;Create a pull request from dev to prod&nbsp;</li><li>&nbsp;Complete the merge&nbsp;</li><li>&nbsp;Locally checkout dev&nbsp;</li><li>&nbsp;git pull the latest dev changes&nbsp;</li><li>&nbsp;On GitHub navigate to the location of the m6_submission.md file from the prod branch&nbsp;</li><li>&nbsp;Grab that direct link and submit it to Canvas</li></ol></td></tr></table>
+<table><tr><td> <em>Deliverable 1: </em> Proof App has been deployed </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="http://via.placeholder.com/400x120/009955/fff?text=Complete"></td></tr>
+<tr><td><table><tr><td> <em>Sub-Task 1: </em> Screenshot the output of the app (including the url) showing it's running from Heroku dev</td></tr>
+<tr><td><table><tr><td><img width="768px" src="https://user-images.githubusercontent.com/113148416/198847569-74231153-6cb9-4fed-a7ba-533b1f179223.png"/></td></tr>
+<tr><td> <em>Caption:</em> <p>It shows the flask sample app running on heroku dev<br></p>
+</td></tr>
+</table></td></tr>
+<tr><td> <em>Sub-Task 2: </em> Add a direct link to the app here (prod url)</td></tr>
+<tr><td> <a rel="noreferrer noopener" target="_blank" href="https://is601-jp2267-prod.herokuapp.com/">https://is601-jp2267-prod.herokuapp.com/</a> </td></tr>
+</table></td></tr>
+<table><tr><td> <em>Deliverable 2: </em> Misc </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="http://via.placeholder.com/400x120/009955/fff?text=Complete"></td></tr>
+<tr><td><table><tr><td> <em>Sub-Task 1: </em> Add a link to the pull request from Flask-Sample-HW to Dev</td></tr>
+<tr><td> <a rel="noreferrer noopener" target="_blank" href="https://github.com/jp2267/is-601-005/pull/10">https://github.com/jp2267/is-601-005/pull/10</a> </td></tr>
+<tr><td> <em>Sub-Task 2: </em> Did you have any issues during setup and if so how did you resolve them, otherwise what did you learn?</td></tr>
+<tr><td> <em>Response:</em> <p>No I did not face any issue during the setup.<br></p><br></td></tr>
+</table></td></tr>
+<table><tr><td> <em>Deliverable 3: </em> Readings </td></tr><tr><td><em>Status: </em> <img width="100" height="20" src="http://via.placeholder.com/400x120/009955/fff?text=Complete"></td></tr>
+<tr><td><table><tr><td> <em>Sub-Task 1: </em> What can you tell me about docker? Describe the various steps needed to get an app ran inside a docker container in your own words</td></tr>
+<tr><td> <em>Response:</em> <ol><li>Docker is a platform as a service, which we can use for testing,<br>building, running and managing a software in a containerised format, docker is easy<br>to use and it is fast. In docker all things are binded in<br>a single container, the software that host the container is called the docker<br>engine.</li><li>First thing we will need a docker file, which mentions the port number<br>on which the application will run and additionally we will need to mention<br>the details of web service which we will be using, in our case<br>we are using gunicorn.</li><li>We will need to setup the workflow for dev and<br>prod using the github actions</li><li>After the commit the application will be deployed on<br>the respective server.&nbsp;</li></ol><div><div><br></div></div><br></td></tr>
+<tr><td> <em>Sub-Task 2: </em> What is Heroku? Why do you feel it was chosen for this class?</td></tr>
+<tr><td> <em>Response:</em> <ol><li><span style="letter-spacing: 0.09996px;">Heroku</span>&nbsp;is a container based cloud platform also know as platform as<br>a service, it is used to deploy app on cloud, it is also<br>used to scale and manage the application.&nbsp;</li><li>For our class it was used because<br>it gives 13$ credit every month, and we wont be using that much<br>of credits per month.</li><li>It has low cost tier and also offer free tier.</li><li>It<br>supports Fast app development, it can be used with the DevOps.</li></ol><div><br></div><br></td></tr>
+<tr><td> <em>Sub-Task 3: </em> What is flask? List a few things you learned about it</td></tr>
+<tr><td> <em>Response:</em> <h6><ol><li><font size="3">Flask is a web based python framework, it is a microframework that<br>dosen't include an ORM (Object Relational Manager).</font></li><li><font size="3">It is easy to get started<br>with flask as compared to Django.</font></li><li><font size="3">It is based on WSGI toolkit and<br>jinja template.</font></li><li><font size="3">It does not require any particular library.</font></li><li><font size="3">Flask has provided built<br>in development server and fast debugger.&nbsp;</font></li></ol></h6><br></td></tr>
+<tr><td> <em>Sub-Task 4: </em> What is the difference between a Dockerfile and a Github Action .yml file?</td></tr>
+<tr><td> <em>Response:</em> <ol><li>The Dockerfile describes how the docker image is build.</li><li>The Github Action .yml file<br>describes how to run a docker container.</li></ol><br></td></tr>
+</table></td></tr>
+<table><tr><td><em>Grading Link: </em><a rel="noreferrer noopener" href="https://learn.ethereallab.app/homework/IS601-005-F22/sample-flask-app-and-readings/grade/jp2267" target="_blank">Grading</a></td></tr></table>
